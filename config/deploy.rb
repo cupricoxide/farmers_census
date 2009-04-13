@@ -2,6 +2,14 @@
 # Modified from nomad-labs cap deploy file
 #++++++++++++++++++++++++++++++++++++++++++++
 
+set :application,	'farmers_census'
+set :user,		'justink'
+set :domain,		'74.63.13.21'
+set :mongrel_port,	'4266'
+set :server_hostname,	'www.serveyourcountryfood.net'
+
+
+
 # Make your choice of source code management here, dependent on which your 
 # application is currently stored in
 #
@@ -20,32 +28,33 @@ set :repository,  "git@github.com:#{github_user}/#{github_app}.git"
 # # Replace this with your git username
 set :scm_user,    github_user
 set :runner,	  github_user
-set :use_sudo,	  false 
+set :use_sudo,	  false
 set :scm_passphrase, "farmers#1024"
 
 set :user,	"justink"
+role :app, server_hostname  ## serveyourcountryfood.net
+role :web, server_hostname
+role :db,  server_hostname, :primary => true
 
 # # This is the branch you wish to deploy, by default we've set it to master,
 # # however you might want to set it to 'stable' or some other branch you're using
-set :branch,      "master"
+set :branch,		"master"
+set :deploy_via,	:remote_cache
+set :git_shallow_clone,	1
+set :git_enable_submodules, 1
+set :sql_pass,         'mind1024'
+set :application,      'farmers_census'
+set :deploy_to,        "/home/#{user}/apps/#{application}"
+
 # # Deploy using an ssh agent.  On Mac OS X you may need to run:
 # # or something similar, to add your key to the agent and run it
 # #  ssh-agent; ssh-add ~/.ssh/id_dsa
 #
-# set :ssh_options, { :forward_agent => true }
+set :ssh_options, { :forward_agent => true }
 
-set :sql_pass,         'mind1024'
-set :application,      'farmers_census'
-set :keep_releases,    5
-set :monit_group,      'rails'
-set :deploy_to,        '/apps'
+
 
 default_run_options[:pty] = true
-
-role :app, "74.63.13.21"  # IP address of shared hosting account on hostingrails.com
-role :web, "74.63.13.21"
-role :db,  "74.63.13.21", :primary => true
-
 
 # =============================================================================
 # Any custom after tasks can go here.
@@ -76,12 +85,9 @@ end
 
 namespace(:deploy) do  
   task :symlink_configs, :roles => :app, :except => { :no_symlink => true } do
-    run <<-CMD
-      cd #{release_path} &&
-      ln -nfs #{shared_path}/config/database.yml #{release_path}/config/database.yml &&
-      ln -nfs #{shared_path}/config/mongrel_cluster.yml #{release_path}/config/mongrel_cluster.yml &&
-      ln -nfs #{shared_path}/deployed_apps/farmers_census/public/avatars #{release_path}/public
-    CMD
+    run  "ln -nfs #{shared_path}/config/database.yml #{release_path}/config/database.yml"
+    run  "ln -nfs #{shared_path}/config/environment.rb #{release_path}/config/environment.rb"
+    run  "ln -nfs #{shared_path}/deployed_apps/farmers_census/public/avatars #{release_path}/public"
   end
 
   desc "Long deploy will throw up the maintenance.html page and run migrations 
