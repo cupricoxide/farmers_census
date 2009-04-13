@@ -1,20 +1,7 @@
-require 'eycap/recipes'
-# =============================================================================
-# ENGINE YARD EXPRESS REQUIRED VARIABLES
-# =============================================================================
+# +++++++++++++++++++++++++++++++++++++++++++
+# Modified from nomad-labs cap deploy file
+#++++++++++++++++++++++++++++++++++++++++++++
 
-# =============================================================================
-# CHANGE THESE
-# =============================================================================
-
-# Once you have the IP of your Express image, put it in here
-#set :express_ip, "nomad-labs.dyndns.org"
-set :express_ip, "www.serveyourcountryfood.net"
-#set :express_ip, "nomad-berlin.dyndns.org"
-# If you don't have ssh keys set up, then put your express user's password here
-# set :password, "secret"
-
-#
 # Make your choice of source code management here, dependent on which your 
 # application is currently stored in
 #
@@ -24,18 +11,20 @@ ssh_options[:paranoid] = false
 # ==============================================================================
 # DEPLOYING USING GITHUB
 # ==============================================================================
-set :github_user, "sabman"
-set :github_app, "farmers_census"
+
 set :scm, :git
+set :github_user, "cupricoxide"
+set :github_app, "farmers_census"
 # # Replace this with your git repository name
 set :repository,  "git@github.com:#{github_user}/#{github_app}.git"
 # # Replace this with your git username
-set :scm_user,    github_user 
-set :scm_passphrase, "p@ssw0rd"
+set :scm_user,    github_user
+set :runner,	  github_user
+set :use_sudo,	  false 
+set :scm_passphrase, "farmers#1024"
 
-# # Leave this, as we deploy and run the applications on the VM image as 'express'
-set :user,        'express'
-# 
+set :user,	"justink"
+
 # # This is the branch you wish to deploy, by default we've set it to master,
 # # however you might want to set it to 'stable' or some other branch you're using
 set :branch,      "master"
@@ -45,33 +34,18 @@ set :branch,      "master"
 #
 # set :ssh_options, { :forward_agent => true }
 
-set :sql_pass,         '77zxcvb77'
-set :application,      'rails'
+set :sql_pass,         'mind1024'
+set :application,      'farmers_census'
 set :keep_releases,    5
 set :monit_group,      'rails'
-set :deploy_to,        '/data/rails'
-set :runner,           'express'
-set :express_database, 'rails_prod'
-set :sql_user,         'express_db'
-set :sql_host,         'localhost'
+set :deploy_to,        '/apps'
 
 default_run_options[:pty] = true
 
-# =============================================================================
-# ROLES
-# =============================================================================
-# You can define any number of roles, each of which contains any number of
-# machines. Roles might include such things as :web, or :app, or :db, defining
-# what the purpose of each machine is. You can also specify options that can
-# be used to single out a specific subset of boxes in a particular role, like
-# :primary => true. 
-task :express do
-  role :web, "#{express_ip}"
-  role :app, "#{express_ip}"
-  role :db, "#{express_ip}", :primary => true
-  set :rails_env, "express"
-  set :environment_database, Proc.new { express_database }
-end
+role :app, "74.63.13.21"  # IP address of shared hosting account on hostingrails.com
+role :web, "74.63.13.21"
+role :db,  "74.63.13.21", :primary => true
+
 
 # =============================================================================
 # Any custom after tasks can go here.
@@ -106,8 +80,7 @@ namespace(:deploy) do
       cd #{release_path} &&
       ln -nfs #{shared_path}/config/database.yml #{release_path}/config/database.yml &&
       ln -nfs #{shared_path}/config/mongrel_cluster.yml #{release_path}/config/mongrel_cluster.yml &&
-      ln -nfs #{shared_path}/deployed_apps/farmers_census/public/avatars #{release_path}/public  &&
-      ln -nfs #{shared_path}/config/environments/express.rb #{release_path}/config/environments/express.rb
+      ln -nfs #{shared_path}/deployed_apps/farmers_census/public/avatars #{release_path}/public
     CMD
   end
 
