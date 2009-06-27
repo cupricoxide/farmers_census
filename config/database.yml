@@ -9,13 +9,13 @@ development:
   adapter: mysql
   database: farmers 
   username: jkray
-  password: sql
+  password: mind1024
 
 test:
   adapter: mysql
   database: farmers
   username: jkray
-  password: sql
+  password: mind1024
 
 # For server, database names and mysql access differ
 production:
